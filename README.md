@@ -40,8 +40,8 @@ Atelectasis, Cardiomegaly, Consolidation, Edema, Effusion, Emphysema, Fibrosis, 
 
 1. Clone the repository
 ```bash
-git clone <your-repo-url>
-cd xray-classifier
+git clone https://github.com/evanpetersen919/Chest-X-Ray-Classifier.git
+cd Chest-X-Ray-Classifier
 ```
 
 2. Install dependencies
@@ -81,7 +81,22 @@ Open and run `classifier.ipynb` to train the model:
 - **Test Accuracy**: ~37%
 - **Model File**: `best_resnet50.pth`
 
-The confusion matrix shows the model performs best on common findings like "No Finding" and "Effusion", while struggling with rarer conditions.
+### Model Performance
+
+The confusion matrix shows the model performs best on common findings like "No Finding" and "Effusion", while struggling with rarer conditions. This is typical for medical imaging tasks with class imbalance.
+
+**Key Insights:**
+- Strong performance on "No Finding" class (most common)
+- Decent accuracy on Effusion, Infiltration, and Atelectasis
+- Challenges with rare conditions (Hernia, Emphysema, Fibrosis)
+- 37% accuracy is reasonable for 15-class medical imaging with limited training
+
+### Sample Outputs
+
+The model generates:
+- **Confusion Matrix**: Heatmap showing prediction patterns across all 15 disease classes
+- **Per-Class Accuracy**: Detailed breakdown of performance for each disease category
+- **Inference Visualization**: Side-by-side comparison of input X-ray and top-5 predictions with confidence scores
 
 ## Performance Notes
 
