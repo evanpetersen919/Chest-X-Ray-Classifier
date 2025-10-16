@@ -1,34 +1,41 @@
-# NIH Chest X-Ray Disease Classification
+# Chest X-Ray Disease Classifier
 
-A deep learning project for multi-label classification of chest X-ray images using PyTorch and transfer learning.
+Multi-label classification of chest diseases from X-ray images using deep learning.
 
-## Project Overview
+## Overview
 
-This project implements an EfficientNet-B3 classifier to identify 15 different chest pathologies from the NIH Chest X-Ray dataset. Using multi-label classification with mixed precision training, Mixup augmentation, and cosine annealing scheduling, the model targets 75-80% accuracy with 0.85-0.88 AUC-ROC.
+This project implements an EfficientNet-B3 model for multi-label classification of 7 chest diseases from the NIH Chest X-Ray dataset. The model achieves **47.80% exact match accuracy** on patient-aware test splits.
 
 ## Dataset
 
-- **Source**: NIH Chest X-Ray Dataset
-- **Total Images**: 40,000 chest X-rays (sampled from 112,120)
-- **Classification Type**: Multi-label (images can have multiple diseases)
-- **Classes**: 15 disease categories
-- **Split**: 70% train (28,000), 15% validation (6,000), 15% test (6,000)
+- **Source**: NIH Clinical Center Chest X-Ray Dataset
+- **Size**: ~28,000 images (patient-aware splits)
+- **Split**: 70% train / 15% validation / 15% test
+- **Classification Type**: Multi-label (each image can have multiple diseases)
 
-### Disease Classes
-Atelectasis, Cardiomegaly, Consolidation, Edema, Effusion, Emphysema, Fibrosis, Hernia, Infiltration, Mass, No Finding, Nodule, Pleural Thickening, Pneumonia, Pneumothorax
+### Disease Classes (7 Total)
+
+1. Atelectasis
+2. Effusion
+3. Infiltration
+4. Mass
+5. No Finding
+6. Nodule
+7. Pneumothorax
+
+**Excluded Diseases** (insufficient training data):
+- Cardiomegaly (664 samples)
+- Consolidation (1,204 samples)
+- Pleural_Thickening (160 samples)
 
 ## Project Structure
 
 ```
-.
-├── data.ipynb              # Data preprocessing and organization
-├── classifier.ipynb        # Model training and evaluation
-├── data/                   # Dataset directory (not included)
-│   ├── train/
-│   ├── val/
-│   └── test/
-├── requirements.txt        # Python dependencies
-└── README.md
+xray classifier/
+├── data.ipynb                  # Dataset preparation and processing
+├── classifier.ipynb            # Model training and evaluation
+├── README.md                   # Project documentation
+└── best_efficientnet_b3.pth    # Trained model weights
 ```
 
 ## Setup
@@ -47,81 +54,105 @@ cd Chest-X-Ray-Classifier
 
 2. Install dependencies
 ```bash
-pip install -r requirements.txt
+pip install torch torchvision timm pandas numpy scikit-learn matplotlib seaborn pillow tqdm
 ```
 
 3. Prepare the dataset
-   - Run `data.ipynb` to preprocess and organize the NIH dataset
-   - Ensure data is organized in `data/train/`, `data/val/`, `data/test/`
+   - Run `data.ipynb` to prepare and organize the NIH dataset
+   - Creates patient-aware train/val/test splits
+   - Saves to `C:/xray_data/data/`
 
 ## Usage
 
 ### Training
 
-Open and run `classifier.ipynb` to train the model:
+Run `classifier.ipynb` to train the model:
 
-1. Load data and apply transformations
-2. Initialize ResNet50 model
-3. Train for 20 epochs with validation
+1. Load data with augmentation transforms
+2. Initialize EfficientNet-B3 with class weights
+3. Train with Mixup augmentation and early stopping
 4. Evaluate on test set
-5. Generate confusion matrix
+5. Generate per-class performance visualizations
 6. Test inference on sample images
 
 ### Model Configuration
 
-- **Architecture**: EfficientNet-B3 (pretrained on ImageNet, 12M parameters)
-- **Loss Function**: BCEWithLogitsLoss (for multi-label classification)
-- **Batch Size**: 192
-- **Epochs**: 50
-- **Optimizer**: AdamW (lr=0.001, weight_decay=0.01)
-- **Scheduler**: CosineAnnealingWarmRestarts (T_0=10, T_mult=2)
-- **Mixed Precision**: Enabled (AMP with GradScaler)
-- **Mixup Augmentation**: alpha=0.2
-- **Data Augmentation**: Random horizontal flip, rotation, affine, color jitter, random erasing
-- **Image Size**: 300x300 (optimal for EfficientNet-B3)
+- **Architecture**: EfficientNet-B3 (pretrained on ImageNet)
+  - Parameters: ~10.7M
+  - Input Size: 300×300
+- **Loss Function**: BCEWithLogitsLoss with class weights [1.88-4.59]
+- **Training**:
+  - Batch Size: 32
+  - Epochs: 20 (with early stopping, patience=5)
+  - Optimizer: AdamW (lr=0.001, weight_decay=0.01)
+  - Scheduler: CosineAnnealingWarmRestarts (T_0=10, T_mult=2)
+  - Mixed Precision: Enabled (AMP)
+- **Data Augmentation**:
+  - Mixup (alpha=0.2)
+  - Horizontal flip
+  - Rotation (±10°)
+  - Affine transforms
+  - Color jitter
+  - Random erasing
 
-## Results
+## Performance
 
-- **Target Accuracy**: 75-80% (multi-label)
-- **Target AUC-ROC**: 0.85-0.88 (mean across 15 classes)
-- **Training Time**: ~8.5 hours (50 epochs with mixed precision)
-- **Model File**: `best_efficientnet_b3.pth`
+### Overall Metrics
+- **Exact Match Accuracy**: 47.80%
+- **Hamming Accuracy**: 87.35%
+- **Average F1-Score**: 0.347
+- **AUC-ROC**: 0.7847
 
-### Model Performance
+### Per-Class Performance
 
-Multi-label classification allows the model to predict multiple diseases per image, which is more realistic for chest X-ray diagnosis where patients often have co-occurring conditions.
+| Disease | Precision | Recall | F1-Score | Support |
+|---------|-----------|--------|----------|---------|
+| Atelectasis | 0.366 | 0.340 | 0.353 | 653 |
+| Effusion | 0.598 | 0.314 | 0.412 | 668 |
+| Infiltration | 0.450 | 0.087 | 0.145 | 1049 |
+| Mass | 0.388 | 0.277 | 0.324 | 339 |
+| No Finding | 0.706 | 0.789 | 0.745 | 3225 |
+| Nodule | 0.265 | 0.043 | 0.074 | 302 |
+| Pneumothorax | 0.392 | 0.362 | 0.376 | 282 |
 
-**Key Features:**
-- Per-label accuracy tracking for each of 15 disease categories
-- AUC-ROC metric for robust multi-label evaluation
-- Mixed precision training for 30% faster training and higher batch sizes
-- Mixup augmentation to improve generalization
-- Cosine annealing with warm restarts for better convergence
+### Key Features
 
-### Metrics
+- **Patient-Aware Splits**: Prevents data leakage by ensuring no patient appears in multiple splits
+- **Class Weighting**: Handles imbalance (21.4:1 ratio) with moderate weights instead of oversampling
+- **Multi-Label Classification**: Predicts multiple diseases per image
+- **Mixed Precision Training**: 30% faster training with AMP
+- **Early Stopping**: Prevents overfitting (patience=5)
 
-The model tracks:
-- **Per-Label Accuracy**: Binary accuracy for each disease label
-- **Mean AUC-ROC**: Area under ROC curve averaged across all 15 classes
-- **Training Loss**: BCEWithLogitsLoss with Mixup augmentation
-- **Learning Rate**: Tracked per epoch with cosine annealing schedule
+## Design Decisions
 
-## Performance Notes
+### Why 7 Classes?
 
-For optimal training speed:
-- Use an SSD for data storage
-- Avoid OneDrive or network drives
-- Enable GPU acceleration
-- Consider increasing batch size if GPU memory allows
+The model focuses on 7 diseases with adequate training data (≥1,500 samples each). This "quality over quantity" approach ensures robust learning for each class.
+
+**Three diseases were excluded** due to insufficient training samples:
+- Cardiomegaly: 664 samples (too few for reliable training)
+- Consolidation: 1,204 samples (borderline insufficient)
+- Pleural_Thickening: 160 samples (severely underrepresented)
+
+Training models on these rare classes without sufficient data would lead to overfitting and poor generalization.
+
+### Why Class Weights Instead of Oversampling?
+
+The model uses moderate class weights (1.88-4.59) rather than oversampling to handle the 21.4:1 class imbalance (No Finding vs. rarest diseases). 
+
+**Why not oversample?**
+- Duplicating multi-label images corrupts natural disease co-occurrence patterns
+- Rare diseases often co-occur with common ones (e.g., Effusion + Atelectasis)
+- Oversampling creates artificial bias in these correlations
+- Class weights preserve the original distribution while improving rare disease detection
 
 ## Future Improvements
 
-- Test-time augmentation (+1-3% accuracy improvement)
-- Gradual unfreezing of backbone layers (+2-3% accuracy)
-- Dropout regularization for better generalization (+1-2% accuracy)
-- Ensemble multiple models with different architectures
-- Experiment with focal loss for class imbalance
-- Implement attention mechanisms for interpretability
+- Optimize per-class prediction thresholds
+- Experiment with ensemble methods
+- Add external datasets (CheXpert) for rare diseases
+- Implement attention visualization for interpretability
+- Deploy as REST API or web service
 
 ## License
 
