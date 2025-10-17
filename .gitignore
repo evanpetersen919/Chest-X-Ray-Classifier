@@ -10,10 +10,11 @@ archive/
 checkpoint_*.pth
 best_*.pth
 
-# Output files and visualizations
+# Output files and visualizations (exclude sample images)
 *.png
 *.jpg
 *.jpeg
+!samples/*.png
 
 # Migration and utility scripts (keep local only)
 move_data_to_local.py
