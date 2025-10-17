@@ -1,16 +1,25 @@
 # Data directories
 data/
+archive/
 *.csv
 *.json
 
-# Model files
+# Model weights and checkpoints
 *.pth
 *.pt
+checkpoint_*.pth
+best_*.pth
 
-# Output files
+# Output files and visualizations
 *.png
 *.jpg
 *.jpeg
+
+# Migration and utility scripts (keep local only)
+move_data_to_local.py
+extract_chexpert_images.py
+DATA_MIGRATION_COMPLETE.md
+WEIGHTS_UPDATE.md
 
 # Python
 __pycache__/
