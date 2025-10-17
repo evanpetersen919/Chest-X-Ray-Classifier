@@ -9,6 +9,7 @@ archive/
 *.pt
 checkpoint_*.pth
 best_*.pth
+!best_resnet50.pth
 
 # Output files and visualizations (exclude sample images)
 *.png
