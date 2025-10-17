@@ -38,11 +38,12 @@ Chest-X-Ray-Classifier/
 ├── app.py               # Streamlit web application
 ├── data.ipynb           # Dataset preparation and processing
 ├── classifier.ipynb     # Model training and evaluation
+├── samples/             # Sample X-ray images for testing
 ├── requirements.txt     # Python dependencies
 └── README.md           # Project documentation
 ```
 
-**Note**: Data and model weights are stored locally and not tracked in git.
+**Note**: Data and model weights are stored locally and not tracked in git. Sample images are provided in the `samples/` folder for testing the application.
 
 ## Setup
 
@@ -83,6 +84,8 @@ streamlit run app.py
 ```
 
 The app will open in your browser at `http://localhost:8501`. Upload a chest X-ray image to get instant disease predictions with probability scores and visualizations.
+
+**Quick Test:** Sample X-ray images are provided in the `samples/` folder. Try uploading these to see the model in action.
 
 ### Training
 
