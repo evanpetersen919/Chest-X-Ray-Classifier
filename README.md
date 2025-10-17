@@ -35,6 +35,7 @@ The NIH dataset contains 15 disease findings. This project focuses on 7 diseases
 
 ```
 Chest-X-Ray-Classifier/
+├── app.py               # Streamlit web application
 ├── data.ipynb           # Dataset preparation and processing
 ├── classifier.ipynb     # Model training and evaluation
 ├── requirements.txt     # Python dependencies
@@ -72,6 +73,16 @@ pip install -r requirements.txt
    - Generates metadata CSV files with labels
 
 ## Usage
+
+### Web Application Demo
+
+Run the Streamlit web app for interactive predictions:
+
+```bash
+streamlit run app.py
+```
+
+The app will open in your browser at `http://localhost:8501`. Upload a chest X-ray image to get instant disease predictions with probability scores and visualizations.
 
 ### Training
 
